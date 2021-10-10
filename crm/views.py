@@ -6,6 +6,10 @@ from django.shortcuts import redirect
 from django.contrib.auth.decorators import login_required
 from django.db.models import Sum 
 from _decimal import Decimal
+from django.shortcuts import  render, redirect
+from .forms import NewUserForm
+from django.contrib.auth import login
+from django.contrib import messages
 
 now = timezone.now()
 def home(request):
@@ -155,6 +159,18 @@ def summary(request, pk):
                               'services': services,
                               'sum_service_charge': sum_service_charge,
                               'sum_product_charge': sum_product_charge,})
+
+def register_request(request):
+    if request.method == "POST":
+	    form = NewUserForm(request.POST)
+	    if form.is_valid():
+		    user = form.save()
+		    login(request, user)
+		    messages.success(request, "Registration successful." )
+		    return redirect("crm/base.html")
+	    messages.error(request, "Unsuccessful registration. Invalid information.")
+    form = NewUserForm()
+    return render (request=request, template_name="crm/register.html", context={"register_form":form})
 
 
 
